@@ -25,13 +25,19 @@
                     </div>
                 </div>
 
-                <payment-type :options="types" v-model="type"></payment-type>
+                <div class="form-group row">
+                    <label for="type" class="col-md-3 col-form-label">Payment type</label>
+                    <div class="col-md-9">
+                        <v-select :options="types" v-model="type.value"></v-select>
+                    </div>
+                </div>
+
+<!--                <payment-type :options="types" v-model="type"></payment-type>-->
 
                 <div class="form-group row">
                     <label for="amount" class="col-md-3 col-form-label">Amount</label>
                     <div class="col-md-9">
-                        <input type="text" id="amount" name="amount" class="form-control" autocomplete="off"
-                               v-model="amount">
+                        <input type="text" id="amount" name="amount" v-model="amount" class="form-control" v-currency="{currency: 'AUD', locale: 'en'}">
                     </div>
                 </div>
 
@@ -42,7 +48,7 @@
                     </div>
                 </div>
 
-                <card-info ref="card_info" :type="type" :stripe-token="stripeToken"></card-info>
+                <card-info ref="card_info" :type="type.value.id" :stripe-token="stripeToken"></card-info>
 
             </div>
             <div class="card-footer text-center">
@@ -60,7 +66,12 @@
                 csrf: document.querySelector('meta[name=csrf-token]').content,
                 amount: 100,
                 date: '07/07/2020',
-                type: 'CC',
+                type: {
+                    value: {
+                        id: 'CC',
+                        label: 'Credit Card'
+                    }
+                },
                 cardDetails: {
                     card: '',
                     cardExpiry: '',
@@ -147,7 +158,7 @@
                 if (_errors.length) {
                     Swal.fire('Error', _errors.join('<br />'), 'warning');
                 } else {
-                    if (this.type === 'CC') {
+                    if (this.type.value.id === 'CC') {
                         this.stripe.createToken(this.cardDetails.card)
                             .then((result) => this.paymentStripeResponseHandler(result));
                     } else {
